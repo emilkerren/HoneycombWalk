@@ -3,100 +3,157 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    private static List<int[]> intArrayHolder = new ArrayList<>();
-
+    private static List<HexagonalPoint> hexGrid = new ArrayList<>();
+    private static int alternativeWalks = 0;
+    private static List<Integer> stepsCalculated = new ArrayList<>();
     public static void main(String[] args) {
-        int x = 0;
-        int y = 0;
 
-        intArrayHolder = hexagonalGrid();
+        hexagonalGrid();
+
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextInt()) {
+
             int s = scanner.nextInt(); //s = 2
-//            int[] array1 = {x-1, y-1, s-1}; //-1 -1 +1 = -1
-//            int[] array2 = {x, y-1, s-1}; // 0 -1  +1 = 0
-//            int[] array3 = {x+1, y, s-1}; // 1 + 0 + 1 = 2
-//            int[] array4 = {x+1, y+1, s-1}; //1 + 1 + 1 = 3
-//            int[] array5 = {x, y+1, s-1}; // 0 + 1 + 1 = 2
-//            int[] array6 = {x-1, y, s-1}; // -1 + 0 + 1 = 0
-
-            //s = 4
-//            int[] array7 = {x-2, y+2, s-2};
-//            int[] array8 = {x-2, y+1, s-2};
-//            int[] array9 = {x+2, y, s-2};
-//            int[] array10 = {x-2, y-1, s-2};
-//            int[] array11 = {x+2, y-1, s-2};
-//            int[] array12 = {x+2, y, s-2};
-//            int[] array13 = {x-2, y, s-2};
-//            int[] array14 = {x+2, y+1, s-2};
-//            int[] array15 = {x-2, y+1, s-2};
-//            int[] array16 = {x+1, y+2, s-2};
-//            int[] array17 = {x, y+2, s-2};
-//            int[] array18 = {x-1, y+2, s-2};
-
-//            6 + 18 + 36
-//            intArrayHolder.add(array1);
-//            intArrayHolder.add(array2);
-//            intArrayHolder.add(array3);
-//            intArrayHolder.add(array4);
-//            intArrayHolder.add(array5);
-//            intArrayHolder.add(array6);
-//            intArrayHolder.add(array7);
-//            intArrayHolder.add(array8);
-//            intArrayHolder.add(array9);
-//            intArrayHolder.add(array10);
-//            intArrayHolder.add(array11);
-//            intArrayHolder.add(array12);
-//            intArrayHolder.add(array13);
-//            intArrayHolder.add(array14);
-//            intArrayHolder.add(array15);
-//            intArrayHolder.add(array16);
-//            intArrayHolder.add(array17);
-//            intArrayHolder.add(array18);
-
-//            int result = calculateDirectionSteps(array1) + calculateDirectionSteps(array2) +  calculateDirectionSteps(array3)
-//                    + calculateDirectionSteps(array4)+ calculateDirectionSteps(array5) + calculateDirectionSteps(array6);
+            if(stepsCalculated.contains(s)) {
+                continue;
+            }
+            if (s < 1 || s > 14) {
+                break;
+            }
+            List<HexagonalPoint> origoNeighborHexes = new ArrayList<>();
+            HexagonalPoint origo = new HexagonalPoint(0, 0, 0);
+            origoNeighborHexes = getSuroundingPointHexes(origo);
 
             int result = 0;
-            for (int[] ints : intArrayHolder) {
-                result += calculateDirectionSteps(ints);
+            for (HexagonalPoint origoNeighbor : origoNeighborHexes) {
+                result += calculateNumberOfSteps(origoNeighbor, s);
             }
             System.out.println(result);
+            stepsCalculated.add(s);
         }
     }
 
-    private static List<int[]> hexagonalGrid() {
-        int x = 0;
-        int y = 0;
-        int size = 14;
-        int half = size / 2;
-        List<int[]> arrayHolder = new ArrayList<>();
-//        for (int i = 1; i <= 14; i++) {
-//            if(i%2 == 0) {
-//                //even numbers of grid
-//                int[] temp = {x, y, i-2};
-//                arrayHolder.add(temp);
-//            }
-//        }
+    private static List<HexagonalPoint> getSuroundingPointHexes(HexagonalPoint startingHex) {
+        int steps = 1;
+        List<HexagonalPoint> allWithinRadius = new ArrayList<>();
+
+        //westNeighbor
+        allWithinRadius.add(0, hexGrid.stream()
+                .filter(hex -> hex.x == startingHex.x - 1 && hex.y == startingHex.y + 1 && hex.z ==  startingHex.z).findFirst().orElseGet(null));
+        //southwestNeighbor
+        allWithinRadius.add(1, hexGrid.stream()
+                .filter(hex -> hex.x == startingHex.x - 1 && hex.y == startingHex.y && hex.z == startingHex.z + 1).findFirst().orElseGet(null));
+
+        //northwestNeighbor
+        allWithinRadius.add(2, hexGrid.stream()
+                .filter(hex -> hex.x == startingHex.x && hex.y == startingHex.y + 1 && hex.z == startingHex.z - 1).findFirst().orElseGet(null));
+
+        //eastNeighbor
+        allWithinRadius.add(3, hexGrid.stream()
+                .filter(hex -> hex.x == startingHex.x + 1 && hex.y == startingHex.y - 1 && hex.z == startingHex.z).findFirst().orElseGet(null));
+
+        //southeastNeighbor
+        allWithinRadius.add(4, hexGrid.stream()
+                .filter(hex -> hex.x == startingHex.x && hex.y == startingHex.y - 1 && hex.z == startingHex.z + 1).findFirst().orElseGet(null));
+
+        //northeastNeighbor
+        allWithinRadius.add(5, hexGrid.stream()
+                .filter(hex -> hex.x == startingHex.x + 1 && hex.y == startingHex.y && hex.z == startingHex.z - 1).findFirst().orElseGet(null));
+
+        return allWithinRadius;
+    }
+
+    /*
+     * Creates the grid with x, y, z, and distance to origo hex values
+     */
+    private static final void hexagonalGrid() {
+        final int size = 13;
+        final int half = size / 2;
 
         for (int row = 0; row < size; row++) {
-            int cols = size - java.lang.Math.abs(row - half);
+            int cols = (size - java.lang.Math.abs(row - half));
 
             for (int col = 0; col < cols; col++) {
                 int xLbl = row < half ? col - row : col - half;
                 int yLbl = row - half;
-                int highestValue = Math.abs(xLbl) >= Math.abs(yLbl) ? Math.abs(xLbl)-1 : Math.abs(yLbl)-1;
-                int[] temp = {xLbl, yLbl, highestValue};
-
-                arrayHolder.add(temp);
+                int zLbl = (xLbl + yLbl) * -1;
+                HexagonalPoint hex = new HexagonalPoint(xLbl, yLbl, zLbl);
+//                int higestValue = Math.abs(xLbl) >= Math.abs(yLbl) ? Math.abs(xLbl) : Math.abs(yLbl);
+                int higestValue = Math.max(Math.max(Math.abs(xLbl),Math.abs(yLbl)),Math.abs(zLbl));
+                hex.setDistanceToOrigo(higestValue);
+                hexGrid.add(hex);
             }
         }
-        return arrayHolder;
     }
 
-    private static int calculateDirectionSteps(int[] array) {
-        int result = array[0] + array[1] + array[2];
+    /*
+     * initiates the calculations with one of the hexes that is neighbor with origo hex
+     */
+    private static int calculateNumberOfSteps(HexagonalPoint startingHex, int steps) {
+        int stepsLeft = steps - 1;//one step taken
+        int result = findNumberOfWalks(stepsLeft, startingHex);
+        alternativeWalks = 0;
         return result;
+    }
+
+    private static int findNumberOfWalks(int stepsLeft, HexagonalPoint array) {
+        List<HexagonalPoint> neighbors = getSuroundingPointHexes(array);
+        HexagonalPoint westNeighbor = neighbors.get(0);
+        HexagonalPoint southwestNeighbor = neighbors.get(1);
+        HexagonalPoint northwestNeighbor = neighbors.get(2);
+        HexagonalPoint eastNeighbor = neighbors.get(3);
+        HexagonalPoint southeastNeighbor = neighbors.get(4);
+        HexagonalPoint northeastNeighbor = neighbors.get(5);
+
+        if (null != westNeighbor && ((stepsLeft-1) >= westNeighbor.getDistanceToOrigo())) {
+            boolean endOfLine = stepsLeft - 1 == westNeighbor.getDistanceToOrigo();
+            if (endOfLine) {
+                alternativeWalks++;
+            } else {
+                findNumberOfWalks(stepsLeft - 1, westNeighbor);
+            }
+        }
+        if (null != southwestNeighbor && ((stepsLeft-1) >= southwestNeighbor.getDistanceToOrigo())) {
+            boolean endOfLine = stepsLeft - 1 == southwestNeighbor.getDistanceToOrigo();
+            if (endOfLine) {
+                alternativeWalks++;
+            } else {
+                findNumberOfWalks(stepsLeft - 1, southwestNeighbor);
+            }
+        }
+        if (null != northwestNeighbor && ((stepsLeft-1) >= northwestNeighbor.getDistanceToOrigo())) {
+            boolean endOfLine = stepsLeft - 1 == northwestNeighbor.getDistanceToOrigo();
+            if (endOfLine) {
+                alternativeWalks++;
+            } else {
+                findNumberOfWalks(stepsLeft - 1, northwestNeighbor);
+            }
+        }
+        if (null != eastNeighbor && ((stepsLeft-1) >= eastNeighbor.getDistanceToOrigo())) {
+            boolean endOfLine = stepsLeft - 1 == eastNeighbor.getDistanceToOrigo();
+            if (endOfLine) {
+                alternativeWalks++;
+            } else {
+                findNumberOfWalks(stepsLeft - 1, eastNeighbor);
+            }
+        }
+        if (null != southeastNeighbor && ((stepsLeft-1) >= southeastNeighbor.getDistanceToOrigo())) {
+            boolean endOfLine = stepsLeft - 1 == southeastNeighbor.getDistanceToOrigo();
+            if (endOfLine) {
+                alternativeWalks++;
+            } else {
+                findNumberOfWalks(stepsLeft - 1, southeastNeighbor);
+            }
+        }
+        if (null != northeastNeighbor && ((stepsLeft-1) >= northeastNeighbor.getDistanceToOrigo())) {
+            boolean endOfLine = stepsLeft - 1 == northeastNeighbor.getDistanceToOrigo();
+            if (endOfLine) {
+                alternativeWalks++;
+            } else {
+                findNumberOfWalks(stepsLeft - 1, northeastNeighbor);
+            }
+        }
+        return alternativeWalks;
     }
 
 }
