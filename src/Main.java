@@ -1,26 +1,26 @@
-import java.util.ArrayList;
-import java.util.List;
+
 import java.util.Scanner;
 
 public class Main {
-
-    private static int alternativeWalks = 0;
-    private static List<Integer> stepsCalculated = new ArrayList<>();
     private static final Honeycomb honeycomb = new Honeycomb();
+    private static int numberOfTestCases = 0;
     public static void main(String[] args) {
-
+        int writtenNumbers = 0;
         Scanner scanner = new Scanner(System.in);
         while (scanner.hasNextInt()) {
-
+            writtenNumbers ++;
             int s = scanner.nextInt(); //s = 2
-            if(stepsCalculated.contains(s)) {
+            if(numberOfTestCases == 0) {
+                numberOfTestCases = s;
                 continue;
             }
-            if (s < 1 || s > 14) {
-                break;
+            if(numberOfTestCases > 0 ) {
+                if (s < 1 || s > 14) {
+                    break;
+                }
+                System.out.println("result: "+honeycomb.init(s));
+                numberOfTestCases--;
             }
-            honeycomb.init(s);
-            stepsCalculated.add(s);
         }
     }
 }

@@ -1,45 +1,39 @@
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by Emil on 2017-02-27.
- */
 public class Honeycomb {
 
-    private final List<HexagonalPoint> hexGrid = new ArrayList<>();
+    private int result = 0;
 
-    public Honeycomb() {
-        hexagonalGrid();
+    public int init(int s) {
+        result = 0;
+        result = calc(0, 0, s);
+        return result;
     }
 
-    public void init(int s) {
-        List<HexagonalPoint> origoNeighborHexes = new ArrayList<>();
-        HexagonalPoint origo = new HexagonalPoint(0, 0, 0);
-        int result = 0;
-        result += MathHandler.calculateNumberOfSteps(s, origo, hexGrid);
+    public int calc(int x, int y, int steps) {
+        if ((steps == 0)) {
 
-        System.out.println(result);
-    }
-
-    /*
-     * Creates the grid with x, y, z, and distance to origo hex values
-     */
-    private final void hexagonalGrid() {
-        final int size = 13;
-        final int half = size / 2;
-
-        for (int row = 0; row < size; row++) {
-            int cols = (size - java.lang.Math.abs(row - half));
-
-            for (int col = 0; col < cols; col++) {
-                int xLbl = row < half ? col - row : col - half;
-                int yLbl = row - half;
-                int zLbl = (xLbl + yLbl) * -1;
-                HexagonalPoint hex = new HexagonalPoint(xLbl, yLbl, zLbl);
-                int higestValue = Math.max(Math.max(Math.abs(xLbl), Math.abs(yLbl)), Math.abs(zLbl));
-                hex.setDistanceToOrigo(higestValue);
-                hexGrid.add(hex);
+            if ((y == 0)) {
+                if (x == 0) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            } else {
+                return 0;
             }
         }
+
+        int recursiveInt = (calc((x - 1), (y - 1), (steps - 1))
+                + calc((x), (y - 1), (steps - 1))
+                + calc((x + 1), (y), (steps - 1))
+                + calc((x + 1), (y + 1), (steps - 1))
+                + calc((x), (y + 1), (steps - 1))
+                + calc((x - 1), (y), (steps - 1)));
+
+        return recursiveInt;
+
     }
+
 }
